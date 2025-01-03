@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>聊天室</title>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-900 text-white h-screen flex flex-col">
+  <!-- 登录页面 -->
+  <div id="loginPage" class="flex items-center justify-center h-full">
+    <div class="bg-gray-800 p-8 rounded shadow-lg">
+      <h1 class="text-2xl font-bold mb-4 text-center">欢迎来到聊天室</h1>
+      <input
+        id="nicknameInput"
+        type="text"
+        placeholder="请输入昵称"
+        class="w-full p-2 mb-4 border rounded bg-gray-700 border-gray-600 text-white"
+      />
+      <button id="loginBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded">进入聊天室</button>
+    </div>
+  </div>
+
+  <!-- 聊天页面 -->
+  <div id="chatPage" class="hidden flex flex-col h-full">
+    <header class="bg-gray-800 p-4">
+      <h1 class="text-xl font-bold">聊天室</h1>
+    </header>
+    <div id="messageContainer" class="flex-1 overflow-y-auto p-4 bg-gray-700">
+      <!-- 消息内容 -->
+    </div>
+    <div class="p-4 bg-gray-800 flex items-center">
+      <input
+        id="messageInput"
+        type="text"
+        placeholder="输入消息"
+        class="flex-1 p-2 rounded bg-gray-700 text-white mr-4"
+      />
+      <button id="sendBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">发送</button>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    const loginPage = document.getElementById("loginPage");
+    const chatPage = document.getElementById("chatPage");
+    const nicknameInput = document.getElementById("nicknameInput");
+    const loginBtn = document.getElementById("loginBtn");
+    const messageContainer = document.getElementById("messageContainer");
+    const messageInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    let nickname = "";
+
+    // 登录
+    loginBtn.addEventListener("click", () => {
+      nickname = nicknameInput.value.trim();
+      if (nickname) {
+        loginPage.classList.add("hidden");
+        chatPage.classList.remove("hidden");
+        socket.emit("user_connected", nickname);
+      }
+    });
+
+    // 发送消息
+    sendBtn.addEventListener("click", () => {
+      const message = messageInput.value.trim();
+      if (message) {
+        socket.emit("send_message", { nickname, message });
+        messageInput.value = "";
+      }
+    });
+
+    // 接收消息
+    socket.on("receive_message", (data) => {
+      const messageElement = document.createElement("div");
+      messageElement.textContent = `${data.nickname}: ${data.message}`;
+      messageContainer.appendChild(messageElement);
+    });
+
+    // 用户通知
+    socket.on("user_connected", (message) => {
+      const notification = document.createElement("div");
+      notification.textContent = message;
+      notification.classList.add("text-green-400");
+      messageContainer.appendChild(notification);
+    });
+
+    socket.on("user_disconnected", (message) => {
+      const notification = document.createElement("div");
+      notification.textContent = message;
+      notification.classList.add("text-red-400");
+      messageContainer.appendChild(notification);
+    });
+  </script>
+</body>
+</html>

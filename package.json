@@ -1,0 +1,20 @@
+{
+  "name": "online-chat-app-socket-io-and-nodejs",
+  "version": "1.0.0",
+  "description": "Online chat app using socket.io and node.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "keywords": [],
+  "author": "kxzb-fun",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.0.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
